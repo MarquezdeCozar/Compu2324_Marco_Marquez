@@ -1,0 +1,17 @@
+//	Programa que suma dos vectores
+
+#include <math.h>
+
+void suma_vec(double* a, double* b, int dim)
+{
+	int i;
+	for(i=0, i=dim, i++)
+	{
+		(a+i) =  
+	}
+
+
+
+} 
+
+
