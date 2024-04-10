@@ -1,26 +1,32 @@
 #include <stdio.h>
 #include <math.h>
+#include <stdlib.h>
 
 #define G 6.67430e-11
 #define c 1.496e11
+
 double distancia(double x1, double y1, double x2, double y2) 
 {
     return sqrt(pow(x2 - x1, 2) + pow(y2 - y1, 2));
 }
 
-void aceleracion(double *ax, double *ay, double x, double y, double m, double *x_pos, double *y_pos, double *mass, int n_planetas) 
+void aceleracion(double *ax, double *ay, double ax_0, double ay_0, double x, double y, double m, double *x_pos, double *y_pos, double *masa, int n_planetas) 
 {
     
     double dist, f;
 
+    ax_0 = *ax;
+    ay_0 = *ay;
+
     *ax = 0;
     *ay = 0;
+
     for (int i = 0; i < n_planetas; i++) 
-    {
-        if (x != x_pos[i] || y != y_pos[i]) 
+    {   
+        if (m != masa[i]) 
         {
             dist = distancia(x, y, x_pos[i], y_pos[i]);
-            f = G * m * mass[i] / pow(dist, 3);
+            f = G * m * masa[i] / pow(dist, 3);
             
             *ax += f * (x_pos[i]-x) / m;
             *ay += f * (y_pos[i]-y) / m;
@@ -29,17 +35,13 @@ void aceleracion(double *ax, double *ay, double x, double y, double m, double *x
 }
 
 // Algoritmo de Verlet
-void verlet(double *x, double *y, double *vx, double *vy, double ax, double ay, double h) 
+void verlet(double *x, double *y, double *vx, double *vy, double ax, double ay, double ax_0, double ay_0, double h) 
 {
-    double x_temp, y_temp; 
- 
-    x_temp = *x;
-    y_temp = *y;
 
     *x += *vx * h + 0.5 * ax * h * h;
     *y += *vy * h + 0.5 * ay * h * h;
-    *vx += ax * h;
-    *vy += ay * h;
+    *vx += (ax_0 + ax) * h * 0.5;
+    *vy += (ay_0 + ay) * h * 0.5;
 
 }
 
@@ -61,12 +63,30 @@ int main()
     vx[0] = 0;
     vy[0] = 0;
     m[0] = 1.989e30;
-
-    x[1] = 1.496e11;
+    
+    x[1] = 5.791e10;
     y[1] = 0;
     vx[1] = 0;
-    vy[1] = 29783;
-    m[1] = 5.972e24;
+    vy[1] = 47890;
+    m[1] = 3.303e23;
+
+    x[2] = 1.082e11;
+    y[2] = 0;
+    vx[2] = 0;
+    vy[2] = 35030;
+    m[2] = 4.869e24;
+
+    x[3] = 1.496e11;
+    y[3] = 0;
+    vx[3] = 0;
+    vy[3] = 29783;
+    m[3] = 5.972e24;
+
+    x[4] = 2.2794e11;
+    y[4] = 0;
+    vx[4] = 0;
+    vy[4] = 24130;
+    m[4] = 6.421e23;
 
     double h = 86400; // Unidad de paso
     double t = 365 * 24 * 3600; // Tiempo total
@@ -75,8 +95,8 @@ int main()
     {
         for (int i = 0; i < n_planetas; i++) 
         {
-            x[i] = x[i]/c;
-            y[i] = y[i]/c;
+            x[i] =x[i]/c;
+            y[i]=y[i]/c;
             fprintf(salida, "%lf, %lf ", x[i], y[i]);
             fprintf(salida, "\n");
             x[i]=x[i]*c;
@@ -87,9 +107,11 @@ int main()
         // Actualizar aceleraciones
         for (int i = 0; i < n_planetas; i++) 
         {
-            double ax, ay;
-            aceleracion(&ax, &ay, x[i], y[i], m[i], x, y, m, n_planetas);
-            verlet(&x[i], &y[i], &vx[i], &vy[i], ax, ay, h);
+            double ax, ay, ax_0, ay_0;
+            ax = 0;
+            ay = 0;
+            aceleracion(&ax, &ay, ax_0, ay_0, x[i], y[i], m[i], x, y, m, n_planetas);
+            verlet(&x[i], &y[i], &vx[i], &vy[i], ax, ay, ax_0, ay_0, h);
         }
     }
 
