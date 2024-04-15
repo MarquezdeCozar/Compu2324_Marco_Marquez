@@ -7,6 +7,7 @@
 #define h 86400
 #define t 365 * 24 * 3600
 
+
 double distancia(double x1, double y1, double x2, double y2) 
 {
     return sqrt(pow(x2 - x1, 2) + pow(y2 - y1, 2));
@@ -58,7 +59,7 @@ int main()
 {
     FILE *salida = fopen("posiciones.txt", "w");
 
-    int n_planetas = 5; // Número de planetas usados
+    int n_planetas = 9; // Número de planetas usados
 
 
     double *x = malloc(n_planetas * sizeof(double));
@@ -102,6 +103,30 @@ int main()
     vx[4] = 0;
     vy[4] = 24130;
     m[4] = 6.421e23;
+
+    x[5] = 7.7833e11;
+    y[5] = 0;
+    vx[5] = 0;
+    vy[5] = 13060;
+    m[5] = 1.9e27;
+
+    x[6] = 1.4294e12;
+    y[6] = 0;
+    vx[6] = 0;
+    vy[6] = 9640;
+    m[6] = 5.688e26;
+
+    x[7] = 2.8709e12;
+    y[7] = 0;
+    vx[7] = 0;
+    vy[7] = 6810;
+    m[7] = 8.686e25;
+
+    x[8] = 4.5043e12;
+    y[8] = 0;
+    vx[8] = 0;
+    vy[8] = 5430;
+    m[8] = 1.024e26;
 
     for(int i=0; i < n_planetas; i++)
     {
