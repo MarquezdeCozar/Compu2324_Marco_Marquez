@@ -1,44 +1,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-void suma_vec(double *a, double *b, int dim);
+#define G 6.67430e-11
+#define c 1.496e11
+#define M 1.99e30
+#define h 86400 * 100 * sqrt(G*M/(pow(c,3)))
+#define t 365 * 24 * 3600 * 10 * sqrt(G*M/(pow(c,3)))
 
-int main(void) {
-    int dim;
-    printf("Introduce la dimension de los vectores: ");
-    scanf("%d", &dim);
-
-    double *a = (double *)malloc(dim * sizeof(double));
-    double *b = (double *)malloc(dim * sizeof(double));
-
-    printf("Introduce los valores del vector a:\n");
-    for (int i = 0; i < dim; i++) {
-        printf("a[%d]: ", i);
-        scanf("%lf", &a[i]);
-    }
-
-    printf("Introduce los valores del vector b:\n");
-    for (int i = 0; i < dim; i++) {
-        printf("b[%d]: ", i);
-        scanf("%lf", &b[i]);
-    }
-
-    suma_vec(a, b, dim);
-
-    printf("El resultado de la suma es:\n");
-    for (int i = 0; i < dim; i++) {
-        printf("%.2f ", a[i]);
-    }
-    printf("\n");
-
-    free(a);
-    free(b);
-
+int main()
+{
+    printf("%lf", h);
+    double x = 86400 * 100 * sqrt(G*M/(pow(c,3)));
+    printf("%lf", x);
     return 0;
-}
-
-void suma_vec(double *a, double *b, int dim) {
-    for (int i = 0; i < dim; i++) {
-        a[i] += b[i];
-    }
 }

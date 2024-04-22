@@ -4,10 +4,9 @@
 
 #define G 6.67430e-11
 #define c 1.496e11
-#define h 86400 * 100
-#define t 365 * 24 * 3600 * 10
 #define M 1.99e30
-
+#define h 86400 * 100 /** sqrt(G*M/(pow(c,3)))*/
+#define t 365 * 24 * 3600 * 10 /* * sqrt(G*M/(pow(c,3)))*/
 
 double distancia(double x1, double y1, double x2, double y2) 
 {
@@ -38,6 +37,24 @@ void aceleracion(double *ax, double *ay, double x, double y, double m, double *w
     }
 }
 
+/* double energia(double *x, double *y, double *vx, double *vy, double *m, int n_planetas)
+{
+    double e, v;
+
+    e = 0.0;
+    v = 0.0;
+
+    for(int i=0; i<n_planetas; i++)
+    {   
+        for(int j=0; j<n_planetas; j++)
+        {
+            if(j != i) v += m[i] * m[j] / (distancia(x[i], y[i], x[j], y[j]));
+        }
+        e += 0.5 * m[i] * (pow(vx[i],2)+pow(vy[i],2)) - v;
+    }
+    return e;
+} */
+
 
 void pos(double *x, double *y, double *vx, double *vy, double *wx, double *wy, double *ax, double *ay)
 {
@@ -57,10 +74,12 @@ void veloc(double *x, double *y, double *vx, double *vy, double *wx, double *wy,
 }
 
 int main() 
-{
+{   
     FILE *salida = fopen("posiciones.txt", "w");
+    FILE *ener = fopen("energia.txt", "w");
 
-    int n_planetas = 9; // Número de planetas usados
+    int n_planetas = 9; // Número de planetas usados (contando el sol)
+    // double deltaE;
 
 
     double *x = malloc(n_planetas * sizeof(double));
@@ -75,7 +94,7 @@ int main()
     
 
     // Datos de los planetas
-    x[0] = 0;
+    x[0] = 0; 
     y[0] = 0;
     vx[0] = 0;
     vy[0] = 0;
@@ -129,12 +148,14 @@ int main()
     vy[8] = 5430;
     m[8] = 1.024e26;
 
-    /* for(int i=0; i < n_planetas; i++)
+    /*for(int i=0; i < n_planetas; i++)
     {
         m[i] = m[i]/M;
         x[i] = x[i]/c;
+    } */
 
-    } */ // Me falta el reescalado
+    // deltaE = energia(x, y, vx, vy, m, n_planetas);
+
 
     for(int i=0; i < n_planetas; i++)
     {
@@ -146,15 +167,19 @@ int main()
         for (int i = 0; i < n_planetas; i++) 
         {
             x[i] = x[i]/c;
-            y[i] = y[i]/c;
+            y[i] = y[i]/c; 
             fprintf(salida, "%lf, %lf ", x[i], y[i]);
             fprintf(salida, "\n");
             x[i] = x[i]*c;
             y[i] = y[i]*c;
+           /* deltaE -= energia(x, y, vx, vy, m, n_planetas);
+            fprintf(ener, "%lf", deltaE);
+            fprintf(ener, "\n");*/
+
         }
         fprintf(salida, "\n");
 
-        // Actualizar aceleraciones
+
         for (int i = 0; i < n_planetas; i++) 
         {
             pos(&x[i], &y[i], &vx[i], &vy[i], &wx[i], &wy[i], &ax[i], &ay[i]);
