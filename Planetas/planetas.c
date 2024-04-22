@@ -4,8 +4,9 @@
 
 #define G 6.67430e-11
 #define c 1.496e11
-#define h 86400
-#define t 365 * 24 * 3600
+#define h 86400 * 100
+#define t 365 * 24 * 3600 * 10
+#define M 1.99e30
 
 
 double distancia(double x1, double y1, double x2, double y2) 
@@ -127,6 +128,13 @@ int main()
     vx[8] = 0;
     vy[8] = 5430;
     m[8] = 1.024e26;
+
+    /* for(int i=0; i < n_planetas; i++)
+    {
+        m[i] = m[i]/M;
+        x[i] = x[i]/c;
+
+    } */ // Me falta el reescalado
 
     for(int i=0; i < n_planetas; i++)
     {
