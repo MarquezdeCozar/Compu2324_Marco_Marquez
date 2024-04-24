@@ -4,7 +4,7 @@
 #include <math.h>
 #include <stdlib.h>
 
-#define n 2
+#define n 1000
 #define T 4
 #define kB 1.380649e-23
 
@@ -83,13 +83,24 @@ int main()
     inicializar_red();
     
     FILE *salida= fopen("energia.txt", "w");
+    FILE *f = fopen("spin.txt", "w");
 
-    for(int i=0; i<pasos; i++)
+
+    for(int h=0; h<pasos; h++)
     {
         energia = calc_energia();
         fprintf(salida, "%lf", energia);
         fprintf(salida, "\n");
-
+        for(int i=0; i<n; i++)
+        {
+            for(int j=0; j<n-1; j++)
+            {
+                fprintf(f, "%d ,", red[i][j]);
+            } 
+            fprintf(f, "%d", red[i][n-1]);
+            fprintf(f, "\n");
+        }
+        fprintf(f, "\n");
         montecarlo();
     }
     

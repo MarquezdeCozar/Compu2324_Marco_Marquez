@@ -5,15 +5,15 @@
 #define G 6.67430e-11
 #define c 1.496e11
 #define M 1.99e30
-#define h 86400 * 100 /** sqrt(G*M/(pow(c,3)))*/
-#define t 365 * 24 * 3600 * 10 /* * sqrt(G*M/(pow(c,3)))*/
+#define h 86400 * 100 //* sqrt(G*M/(pow(c,3)))
+#define t 365 * 24 * 3600 //* 10  * sqrt(G*M/(pow(c,3)))
 
 double distancia(double x1, double y1, double x2, double y2) 
 {
     return sqrt(pow(x2 - x1, 2) + pow(y2 - y1, 2));
 }
 
-void aceleracion(double *ax, double *ay, double x, double y, double m, double *wx, double *wy, double *x_pos, double *y_pos, double *masa, int n_planetas) 
+void aceleracion(double *ax, double *ay, double *x_pos, double *y_pos, double *masa, double *wx, double *wy, double x, double y, double m, int n_planetas) 
 {
     
     double dist, f;
@@ -152,6 +152,7 @@ int main()
     {
         m[i] = m[i]/M;
         x[i] = x[i]/c;
+        y[i] = y[i]/c;
     } */
 
     // deltaE = energia(x, y, vx, vy, m, n_planetas);
@@ -159,7 +160,11 @@ int main()
 
     for(int i=0; i < n_planetas; i++)
     {
-        aceleracion(&ax[i], &ay[i], x[i], y[i], m[i], &wx[i], &wy[i], x, y, m, n_planetas);
+        double m0, x0, y0;
+        m0 = m[i];
+        x0 = x[i];
+        y0 = y[i];
+        aceleracion(&ax[i], &ay[i], x, y, m, wx, wy, x0, y0, m0, n_planetas);
     }
 
     for (double paso = 0; paso < t; paso += h) 
@@ -182,9 +187,15 @@ int main()
 
         for (int i = 0; i < n_planetas; i++) 
         {
-            pos(&x[i], &y[i], &vx[i], &vy[i], &wx[i], &wy[i], &ax[i], &ay[i]);
-            aceleracion(&ax[i], &ay[i], x[i], y[i], m[i], &wx[i], &wy[i], x, y, m, n_planetas);
-            veloc(&x[i], &y[i], &vx[i], &vy[i], &wx[i], &wy[i], &ax[i], &ay[i]);
+            double m0, x0, y0;
+
+            m0 = m[i];
+            x0 = x[i];
+            y0 = y[i];
+
+            pos(x, y, vx, vy, wx, wy, ax, ay);
+            aceleracion(&ax[i], &ay[i], x, y, m, wx, wy, x0, y0, m0, n_planetas);
+            veloc(x, y, vx, vy, wx, wy, ax, ay);
         }
     }
 
