@@ -3,11 +3,11 @@
 #include <stdio.h>
 #include <math.h>
 #include <stdlib.h>
+#include <omp.h>
 
-#define n 1000
+#define n 5
 #define T 4
 #define kB 1.380649e-23
-
 
 
 int red[n][n];
@@ -79,7 +79,7 @@ int main()
     int pasos;
     double energia;
 
-    pasos = 10;
+    pasos = 100;
     inicializar_red();
     
     FILE *salida= fopen("energia.txt", "w");
