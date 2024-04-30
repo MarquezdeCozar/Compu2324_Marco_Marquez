@@ -22,14 +22,6 @@ void inicializar_red()
 int main()
 {
     inicializar_red();
-
-    for(int i=0; i<n; i++)
-    {
-        for(int j=0; j<n; j++)
-        {
-            printf( "%d", red[i][j]);    
-        }
-        printf("\n");
-    }
-    return 0;
+    double e = 1.0 * rand() / RAND_MAX;
+    printf("%lf", e);
 }

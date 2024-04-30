@@ -5,8 +5,8 @@
 #include <stdlib.h>
 #include <omp.h>
 
-#define n 5
-#define T 4
+#define n 100
+#define T 3
 #define kB 1.380649e-23
 
 
@@ -24,13 +24,13 @@ void inicializar_red()
     }
 }
 
-double minimo(double x, double y)
+double minimo(double x)
 {
-    if(x<y) return x;
-    else return y;
+    if(x<1) return x;
+    else return 1;
 }
 
-double calc_energia()
+/*double calc_energia()
 {
     double energia;
     energia = 0.0;
@@ -43,33 +43,34 @@ double calc_energia()
         }
     }
     return energia/2.0;
-}
+}*/
 
 void montecarlo()
 {
     for(int i=0; i<(n*n); i++)
     {
-        int j = rand() % (n+1);
-        int k = rand() % (n+1);
+        int j = rand() % (n);
+        int k = rand() % (n);
 
-        int a, b, c, d;
+        int a, b;
 
         double deltaE, p, e;
-    
 
-        a = j+1;
-        b = j-1;
-        c = k+1;
-        d = k-1;
+        //red(0,j) = red(n,j) red(n+1,j) = red(1,j) red(i,n) = red(i, 0) 
+        //red(i, n+1) = red(i,1)
 
-        if(j=n-1) a = 0;
-        else if (j = 0) b = n-1;
-        else if (k = n-1) c = 0;
-        else if (k=0) d = n-1;
+        a = j-1;
+        b = k-1;
 
-        deltaE = 2 * red[j][k] * (red[a][k] + red[b][k] + red[j][c] + red[j][d]);
-        p = minimo(1,exp(-deltaE/T));
-        e = rand();
+        if(j = n-1) j = 0, a = n-2;
+        else if(j = 0) a = n-2;
+        else if(k = n-1) k = 0, b = n-2;
+        else if(k = 0) b = n-2; 
+        
+        deltaE = 2 * red[j][k] * (red[j+1][k] + red[a][k] + red[j][k+1] + red[j][b]);
+        
+        p = minimo(exp(-deltaE/T));
+        e = 1.0 * rand() / RAND_MAX;
         if(p < e) red[j][k] = -red[j][k];
     }
 }
@@ -79,7 +80,7 @@ int main()
     int pasos;
     double energia;
 
-    pasos = 100;
+    pasos = 10;
     inicializar_red();
     
     FILE *salida= fopen("energia.txt", "w");
@@ -88,7 +89,7 @@ int main()
 
     for(int h=0; h<pasos; h++)
     {
-        energia = calc_energia();
+        //energia = calc_energia();
         fprintf(salida, "%lf", energia);
         fprintf(salida, "\n");
         for(int i=0; i<n; i++)

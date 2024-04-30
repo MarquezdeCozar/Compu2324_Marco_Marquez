@@ -4,11 +4,11 @@
 
 #define G 6.67430e-11
 #define c 1.496e11
-//#define h 86400 * 10
-//#define t 365 * 24 * 3600 * 100.0
+#define h 86400 * 10
+#define t 365 * 24 * 3600 * 10.0
 
-#define h 0.1
-#define t 1000
+//#define h 0.1
+//#define t 1000
 
 double distancia(double x1, double y1, double x2, double y2) 
 {
@@ -35,6 +35,7 @@ void aceleracion(double *ax, double *ay, double x, double y, double m, double *w
             
             *ax += f * (x_pos[i]-x) ;
             *ay += f * (y_pos[i]-y) ;
+            printf("%lf, %lf", *ax, *ay);
         }
     }
 }
@@ -133,6 +134,7 @@ int main()
     for(int i=0; i < n_planetas; i++)
     {
         aceleracion(&ax[i], &ay[i], x[i], y[i], m[i], &wx[i], &wy[i], x, y, m, n_planetas);
+        printf("%lf, %lf", ax[i], ay[i]);
     }
 
     for (double paso = 0; paso < t; paso += h) 
