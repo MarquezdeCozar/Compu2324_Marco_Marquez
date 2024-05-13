@@ -36,17 +36,17 @@ void aceleracion(double x0, double y0, double m0, double *ax, double *ay, double
 
 void energia(double *x, double*y, double *vx, double *vy, double *m, double *E)
 {
-    E[0] = E[1];
+    E[0] = 0.0;
 
     for(int i = 0; i<n_planetas; i++)
     {   
-        E[1] += 0.5 * m[i] * ( vx[i] * vx[i] + vy[i] * vy[i]);
+        E[0] += 0.5 * m[i] * ( vx[i] * vx[i] + vy[i] * vy[i]);
 
         for(int j=0; j<n_planetas; j++)
         {
             if(j != i)
             {
-                E[1] += G * m[j] * m[i] * 0.5 / distancia(x[i], y[i], x[j], y[j]);
+                E[0] +=  m[j] * m[i] * 0.5 / distancia(x[i], y[i], x[j], y[j]);
             }
         }
     }
@@ -55,7 +55,7 @@ void energia(double *x, double*y, double *vx, double *vy, double *m, double *E)
 
 /*void periodorot(double *periodo, double *n_periodo, double *y, double *y_, double step)
 {
-    for(int i=0; i<n_planetas; i++)
+    for(int i=1; i<n_planetas; i++)
     {
         if(y_[i]<=0 && y[i]>=0)
         {
@@ -189,8 +189,7 @@ int main()
     {   
         double deltaE;
         energia(x, y, vx, vy, m, E);
-        deltaE = E[1]-E[0];
-        fprintf(ener, "%lf \n", deltaE);
+        fprintf(ener, "%lf \n", E[0]);
         for (int i = 0; i < n_planetas; i++) 
         {   
             fprintf(salida, "%lf, %lf", x[i], y[i]);

@@ -5,8 +5,8 @@
 #include <stdlib.h>
 #include <omp.h>
 
-#define n 100
-#define T 100.0
+#define n 40
+#define T 1.5
 #define kB 1.380649e-23
 
 
@@ -22,6 +22,7 @@ void inicializar_red()
             else red[i][j] = 1;
         }
     }
+    return;
 }
 
 double minimo(double x)
@@ -45,8 +46,10 @@ double minimo(double x)
     return energia/2.0;
 }*/
 
-void montecarlo()
+double montecarlo()
 {
+    double E;
+    E = 0;
     for(int i=0; i<(n*n); i++)
     {
         for(int l=0; l<n; l++)
@@ -75,23 +78,25 @@ void montecarlo()
         else if(k > n-2) k = 0, b = n-2;
 
         deltaE = 2 * red[j][k] * (red[j+1][k] + red[a][k] + red[j][k+1] + red[j][b]);
-       
-        p = minimo(exp(deltaE/T));
-        e = 1.0 * rand() / RAND_MAX;
+        E -= deltaE;
+        p = minimo(exp(-deltaE/T));
+        e = ((double) rand() )/ RAND_MAX;
 
-        if(p < e) 
+        if(e < p) 
         {
             red[j][k] = -red[j][k];
         }
     }
+    return E;
 }
 
 int main()
 {
     int pasos;
     double energia;
+    energia = 0;
 
-    pasos = 100;
+    pasos = 1000;
     inicializar_red();
     
     FILE *salida= fopen("energia.txt", "w");
@@ -113,7 +118,7 @@ int main()
             fprintf(f, "\n");
         }
         fprintf(f, "\n");
-        montecarlo();
+        energia = montecarlo();
     }
     
     return 0;

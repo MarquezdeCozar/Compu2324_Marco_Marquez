@@ -3,8 +3,8 @@
 #include <stdlib.h>
 #include <omp.h>
 
-#define n 100
-#define T 100.0
+#define n 50
+#define T 1.0
 #define kB 1.380649e-23
 
 
@@ -12,20 +12,18 @@ int red[n][n];
 
 void inicializar_red()
 {
-    for(int i=0; i<n-1; i++)
+    for(int i = 1; i<n; i++)
     {
-        for(int j=0; j<n-1; j++)
+        for(int j=0; j<n; j++)
         {
-            if(rand() % 2 == 0) red[i][j] = -1;
-            else red[i][j] = 1;
+            red[i][j] = 1;
         }
     }
     for(int i = 0; i<n; i++)
     {
-        red[n-1][i] = red[0][i];
-        red[i][n-1] = red[i][0];
+        red[0][i] = -1;
     }
-    red[n-1][n-1] = red[0][0];
+    return;
 }
 
 double minimo(double x)
@@ -34,53 +32,60 @@ double minimo(double x)
     else return 1;
 }
 
-/*double calc_energia()
+void magnetizacion(double *m)
 {
-    double energia;
-    energia = 0.0;
 
+    for(int i=0; i<(n/2.0); i++)
+    {
+        for(int j=0; j<n; j++) m[0] += red[i][j];
+        for(int j =0; j<n; j++) m[1] += red[i+n/2][j];
+    }
+    return;  
+}
+
+void densidad(double *d)
+{
     for(int i=0; i<n; i++)
     {
-        for(int j=0; j<n; j++)
-        {
-            energia += red[i][j] * (red[i][j+1] + red[i][j-1] + red[i+1][j] + red[i-1][j]);
-        }
+        for(int j=0; j<n; j++) d[i] += red[i][j];
     }
-    return energia/2.0;
-}*/
+    return;
+}
 
-void montecarlo()
+void kawasaki() //double *E
 {
+    //E = 0;
     for(int i=0; i<(n*n); i++)
     {
-        for(int l=0; l<n; l++)
+        int j, l, m;
+        do
         {
-            red[n-1][l] = red[0][l];
-            red[l][n-1] = red[l][0];
-        }
-
-        int j = rand() % (n);
+             j = rand() % (n-1);
+        }while (j == 0);
+        
         int k = rand() % (n);
+        
+        do
+        {
+            l = rand() % (n-1);
+        } while ((j == l) || (l == 0));
+
+        do
+        {
+            m = rand() % (n);
+        } while (k == m);
 
         int a, b;
 
-        double deltaE, p, e;
+        double deltaE, p, e;        
 
+        deltaE = 2 * (red[j][k] * (red[l+1][m] + red[l-1][m] + 
+        red[l][(m+1)%n] + red[l][(m-1+n)%n]) + red[l][m] * (red[j+1][k] + 
+        red[j-1][k] + red[j][(k+1)%n] + red[j][(k-1+n)%n]));
 
-        //red(0,j) = red(n,j) red(n+1,j) = red(1,j) red(i,n) = red(i, 0) 
-        //red(i, n+1) = red(i,1)
+        //*E += deltaE;
 
-        a = j-1;
-        b = k-1;
-
-        if(j < 1) a = n-2;
-        else if(j > n-2) j = 0, a = n-2;
-        if(k < 1) b = n-2;
-        else if(k > n-2) k = 0, b = n-2;
-
-        deltaE = 2 * red[j][k] * (red[j+1][k] + red[a][k] + red[j][k+1] + red[j][b]);
-       
-        p = minimo(exp(deltaE/T));
+        p = minimo(1.0/exp(deltaE/T));
         e = 1.0 * rand() / RAND_MAX;
 
         if(p < e) 
@@ -88,14 +93,20 @@ void montecarlo()
             red[j][k] = -red[j][k];
         }
     }
+    return;
 }
 
 int main()
 {
     int pasos;
-    double energia;
+    double *m = malloc(2 * sizeof(double));
+    //double *energia;
+    //energia = 0;
 
-    pasos = 100;
+    m[0] = 0.0;
+    m[1] = 0.0;
+
+    pasos = 1000;
     inicializar_red();
     
     FILE *salida= fopen("energia.txt", "w");
@@ -104,8 +115,7 @@ int main()
 
     for(int h=0; h<pasos; h++)
     {
-        //energia = calc_energia();
-        fprintf(salida, "%lf", energia);
+        //fprintf(salida, "%lf", energia);
         fprintf(salida, "\n");
         for(int i=0; i<n; i++)
         {
@@ -117,8 +127,17 @@ int main()
             fprintf(f, "\n");
         }
         fprintf(f, "\n");
-        montecarlo();
+        magnetizacion(m);
+        kawasaki();//energia
     }
+
+    m[0] = m[0]/(n*n*0.5);
+    m[1] = m[1]/(n*n*0.5);
+
+    printf("Magnetización media mitad superior : %lf \n", m[0]);
+    printf("Magnetización media mitad inferior : %lf \n", m[1]);
+    fclose(salida);
+    fclose(f);
     
     return 0;
 }
