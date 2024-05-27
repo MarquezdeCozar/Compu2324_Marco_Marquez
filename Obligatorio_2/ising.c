@@ -4,10 +4,10 @@
 #include <math.h>
 #include <stdlib.h>
 #include <omp.h>
+#include <time.h>
 
-#define n 40
+#define n 100
 #define T 1.5
-#define kB 1.380649e-23
 
 
 int red[n][n];
@@ -31,21 +31,6 @@ double minimo(double x)
     else return 1;
 }
 
-/*double calc_energia()
-{
-    double energia;
-    energia = 0.0;
-
-    for(int i=0; i<n; i++)
-    {
-        for(int j=0; j<n; j++)
-        {
-            energia += red[i][j] * (red[i][j+1] + red[i][j-1] + red[i+1][j] + red[i-1][j]);
-        }
-    }
-    return energia/2.0;
-}*/
-
 double montecarlo()
 {
     double E;
@@ -64,10 +49,6 @@ double montecarlo()
         int a, b;
 
         double deltaE, p, e;
-
-
-        //red(0,j) = red(n,j) red(n+1,j) = red(1,j) red(i,n) = red(i, 0) 
-        //red(i, n+1) = red(i,1)
 
         a = j-1;
         b = k-1;
@@ -95,6 +76,8 @@ int main()
     int pasos;
     double energia;
     energia = 0;
+    clock_t inicio, final;
+    inicio = clock();
 
     pasos = 1000;
     inicializar_red();
@@ -105,7 +88,6 @@ int main()
 
     for(int h=0; h<pasos; h++)
     {
-        //energia = calc_energia();
         fprintf(salida, "%lf", energia);
         fprintf(salida, "\n");
         for(int i=0; i<n; i++)
@@ -120,6 +102,9 @@ int main()
         fprintf(f, "\n");
         energia = montecarlo();
     }
+
+    final = clock();
+    printf("Tiempo de ejecución = %lf ", 1.0 * (final-inicio)/CLOCKS_PER_SEC);
     
     return 0;
 }

@@ -4,7 +4,7 @@
 #include <omp.h>
 
 #define n 50
-#define T 1.0
+#define T 10.0
 #define kB 1.380649e-23
 
 
@@ -88,7 +88,7 @@ void kawasaki() //double *E
         p = minimo(1.0/exp(deltaE/T));
         e = 1.0 * rand() / RAND_MAX;
 
-        if(p < e) 
+        if(e < p) 
         {
             red[j][k] = -red[j][k];
         }

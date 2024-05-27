@@ -1,164 +1,75 @@
 #include <stdio.h>
-#include <math.h>
 #include <stdlib.h>
+#include <math.h>
+#include <complex.h>
 
-#define h 1
-#define s 1
+#define N 100
+#define nciclos N/4
+#define lambda 0.8
+#define pi 3.14159265
+#define T 10000
 
-
-
-
-
-
-
-
-
-
-typedef struct FCOMPLEX {double r;double i;} fcomplex;
-
-fcomplex Cadd(fcomplex a, fcomplex b)
-// Output c=a+b
+int main()
 {
-	fcomplex c;
-	c.r=a.r+b.r;
-	c.i=a.i+b.i;
-	return c;
+    FILE *salida = fopen("schrodinger.txt", "w");
+    FILE *arcnorma = fopen("norma.txt", "w");
+    double stilde, k0tilde, V[N], norma;
+    double complex phi[N], alpha[N-1], beta[N-1], chi[N];
+
+    k0tilde = 2 * pi * nciclos / N;
+    stilde = 1 /(4 * k0tilde * k0tilde);
+    
+    for(int j=0; j<N; j++)
+    {
+        if((j>=(2*N/5))&&(j<=(3*N/5))) V[j] = lambda * k0tilde * k0tilde;
+        else V[j] = 0;   
+    }   
+
+    for(int j=0; j<N; j++)
+    {   
+        if(j<(2*N/5)) phi[j] = cexp((I * k0tilde*j)*exp(-8 * (4*j-N)*(4*j-N)/(N*N)));
+        else phi[j] = 0;
+    }
+
+
+    phi[0] = 0 + I * 0;
+    phi[N-1] = 0 + I * 0;
+
+    alpha[N-2] = 0 + I * 0;
+
+    for(int j=N-3; j>-1; j--)
+    {
+        alpha[j] = - 1.0 / (alpha[j+1] -2 + 2*I/stilde - V[j+1]);
+    }
+    
+    for(int k=0; k<T; k++)
+    {
+        norma = 0.0;
+        beta[N-2] = 0;
+        chi[0] = 0;
+
+        for(int i=N-2; i>0; i--)
+        {
+            beta[i-1] = ((4 * I * phi[i])/ stilde - beta[i]) /  (alpha[i] -2 + 2*I/stilde - V[i]);
+        }
+
+        for(int i=0; i<N-1; i++)
+        {
+            chi[i+1] = chi[i]*alpha[i] + beta[i];
+        }
+
+        for(int i=0; i<N; i++)
+        {
+            phi[i] = chi[i] - phi[i];
+            fprintf(salida, "%d , %lf, %lf \n", i, cabs(phi[i]), V[i]);
+            norma += cabs(phi[i]);
+        }
+        fprintf(salida, "\n");
+        fprintf(arcnorma, "%lf \n", norma);
+    }
+
+    fclose(salida);
+    fclose(arcnorma);
+
+    return 0;    
 }
-
-fcomplex Csub(fcomplex a, fcomplex b)
-// Output c=a-b
-{
-	fcomplex c;
-	c.r=a.r-b.r;
-	c.i=a.i-b.i;
-	return c;
-}
-
-fcomplex Cmul(fcomplex a, fcomplex b)
-// Output c=a*b
-{
-	fcomplex c;
-	c.r=a.r*b.r-a.i*b.i;
-	c.i=a.i*b.r+a.r*b.i;
-	return c;
-}
-
-fcomplex Complex(double re, double im)
-// Output c=(re, im)
-{
-	fcomplex c;
-	c.r=re;
-	c.i=im;
-	return c;
-}
-
-fcomplex Conjg (fcomplex z)
-// Output c=conjudado(z)
-{
-	fcomplex c;
-	c.r=z.r;
-	c.i=-z.i;
-	return c;
-}
-
-fcomplex Cdiv (fcomplex a, fcomplex b)
-// Output c=a/b
-{
-	fcomplex c;
-	double r,den;
-	if (fabs(b.r)>=fabs(b.i)){
-		r=b.i/b.r;
-		den=b.r+r*b.i;
-		c.r=(a.r+r*a.i)/den;
-		c.i=(a.i-r*a.r)/den;
-	} else {
-		r=b.r/b.i;
-		den=b.i+r*b.r;
-		c.r=(a.r*r+a.i)/den;
-		c.i=(a.i*r-a.r)/den;
-	}
-	return c;
-}
-
-double Cabs (fcomplex z)
-//output c=|z|
-{
-	double x,y,ans,temp;
-	x=fabs(z.r);
-	y=fabs(z.i);
-	if (x==0.0)
-		ans=y;
-	else if (y==0.0)
-		ans=x;
-	else if (x > y) {
-		temp=y/x;
-		ans=x*sqrt(1.0+temp*temp);
-	} else {
-		temp=x/y;
-		ans=y*sqrt(1.0+temp*temp);
-	}
-	return ans;
-}
-
-fcomplex Csqrt(fcomplex z)
-// output c=sqrt(z)
-{
-	fcomplex c;
-	double x,y,w,r;
-	if ((z.r==0.0)&&(z.i==0.0)) {
-		c.r=0.0;
-		c.i=0.0;
-		return c;
-	} else {
-		x=fabs(z.r);
-		y=fabs(z.i);
-		if (x>=y) {
-			r=y/x;
-			w=sqrt(x)*sqrt(0.5*(1.0+sqrt(1.0+r*r)));
-		} else {
-			r=x/y;
-			w=sqrt(y)*sqrt(0.5*(r+sqrt(1.0+r*r)));
-		}
-		if (z.r>= 0.0) {
-			c.r=w;
-			c.i=z.i/(2.0*w);
-		} else {
-			c.i=(z.i>=0.0) ? w : -w;
-			c.r=z.i/(2.0*c.i);
-		}
-		return c;
-	}
-}
-
-fcomplex RCmul (double x, fcomplex a)
-// output: x=a*x
-{
-	fcomplex c;
-	c.r=x*a.r;
-	c.i=x*a.i;
-	return c;
-}
-
-
-fcomplex Cpow(fcomplex x, int n)
-// output x=x^n
-{
-	fcomplex c;
-	int i;
-	c=Complex(x.r,x.i);
-	for (i=1;i<n;i++)
-	{
-		c=Cmul(c,x);
-	}
-	return c;
-}
-
-
-fcomplex Cgauss (double x,double y)
-// Devuelve el nœmero complejo correspondiente al modulo y y la fase x 
-{
-	fcomplex c;
-	c=Complex(cos(x),sin(x));
-	c=RCmul(y,c);
-	return c;
-	}

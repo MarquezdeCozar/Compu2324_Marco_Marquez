@@ -53,19 +53,6 @@ void energia(double *x, double*y, double *vx, double *vy, double *m, double *E)
     return;
 }
 
-/*void periodorot(double *periodo, double *n_periodo, double *y, double *y_, double step)
-{
-    for(int i=1; i<n_planetas; i++)
-    {
-        if(y_[i]<=0 && y[i]>=0)
-        {
-            periodo[i] = step * h * - n_periodo[i] * periodo[i];
-            n_periodo[i]++;
-        } 
-    }
-    return;
-}*/
-
 void posicion(double *x, double *y, double *ax, double *ay, double *vx, double *vy, double *wx, double *wy)
 {
     *x += *vx * h + h * h * *ax * 0.5;
@@ -105,8 +92,9 @@ int main()
     double *ay = malloc(n_planetas * sizeof(double));
     double *E = malloc(2 * sizeof(double));
     double *y_ = malloc(n_planetas * sizeof(double));
-    double *periodo = malloc(n_planetas * sizeof(double));
-    int *n_periodo = malloc(n_planetas * sizeof(double));
+
+    double periodo[n_planetas];
+    int n_periodo[n_planetas];
 
     E[1] = 0;
 
@@ -171,6 +159,7 @@ int main()
         m[i] = m[i]/M;
         vy[i] = vy[i] / (sqrt(G * M / c));
         n_periodo[i] = 0;
+        periodo[i] = 0;
     }
 
     energia(x, y, vx, vy, m, E);
@@ -187,7 +176,6 @@ int main()
 
     for(double step = 0; step<t; step+=h)
     {   
-        double deltaE;
         energia(x, y, vx, vy, m, E);
         fprintf(ener, "%lf \n", E[0]);
         for (int i = 0; i < n_planetas; i++) 
@@ -198,7 +186,7 @@ int main()
         fprintf(salida, "\n");
 
 
-        for(int i = 0; i<n_planetas; i++)
+        for(int i = 1; i<n_planetas; i++)
         {
             y_[i] = y[i];
             posicion(&x[i], &y[i], &ax[i], &ay[i], &vx[i], &vy[i], &wx[i], &wy[i]);
@@ -211,8 +199,9 @@ int main()
             {
                 n_periodo[i]++;
                 periodo[i] = step * h / n_periodo[i];
-                fprintf(pe, "%lf, %lf, %lf \n", i, n_periodo[i], periodo[i]);
+                fprintf(pe, "%d, %d, %lf \n", i, n_periodo[i], periodo[i]);
             }
+            
             
             aceleracion(x0, y0, m0, &ax[i], &ay[i], x, y, m);
             velocidad(&vx[i], &vy[i], &ax[i], &ay[i], &wx[i], &wy[i]);
@@ -231,8 +220,6 @@ int main()
     free(m);
     free(E);
     free(y_);
-    free(n_periodo);
-    free(periodo);
 
     return 0;
 }
