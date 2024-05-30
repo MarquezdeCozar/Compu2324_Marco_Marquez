@@ -199,7 +199,7 @@ int main()
             {
                 n_periodo[i]++;
                 periodo[i] = step * h / n_periodo[i];
-                fprintf(pe, "%d, %d, %lf \n", i, n_periodo[i], periodo[i]);
+                //fprintf(pe, "%d, %d, %lf \n", i, n_periodo[i], periodo[i]);
             }
             
             
@@ -207,6 +207,8 @@ int main()
             velocidad(&vx[i], &vy[i], &ax[i], &ay[i], &wx[i], &wy[i]);
         }
     }
+
+    for(int i =0; i<n_planetas; i++) fprintf(pe, "%d, %d, %lf \n", i, n_periodo[i], periodo[i]);
 
     fclose(salida);
     fclose(ener);
