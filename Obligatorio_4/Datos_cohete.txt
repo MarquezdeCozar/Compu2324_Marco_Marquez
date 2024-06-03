@@ -1,0 +1,6 @@
+dist_t_l = 3.844e8
+
+r = 6378100/dist_t_l;
+pr = 8850/dist_t_l;
+theta = -0.30;
+p_theta = (1.11e2)/dist_t_l;
