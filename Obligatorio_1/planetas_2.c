@@ -199,7 +199,6 @@ int main()
             {
                 n_periodo[i]++;
                 periodo[i] = step * h / n_periodo[i];
-                //fprintf(pe, "%d, %d, %lf \n", i, n_periodo[i], periodo[i]);
             }
             
             
@@ -208,7 +207,8 @@ int main()
         }
     }
 
-    for(int i =0; i<n_planetas; i++) fprintf(pe, "%d, %d, %lf \n", i, n_periodo[i], periodo[i]);
+    //Devuelve el periodo normalizado respecto al de la Tierra
+    for(int i =0; i<n_planetas; i++) fprintf(pe, "%d, %d, %lf \n", i, n_periodo[i], periodo[i]/periodo[3]);
 
     fclose(salida);
     fclose(ener);

@@ -3,8 +3,8 @@
 #include <stdlib.h>
 #include <omp.h>
 
-#define n 50
-#define T 10.0
+#define n 32
+#define T 2.2
 #define kB 1.380649e-23
 
 
@@ -12,16 +12,19 @@ int red[n][n];
 
 void inicializar_red()
 {
-    for(int i = 1; i<n; i++)
+    for(int i = 0; i<n/2; i++)
+    {
+        for(int j=0; j<n; j++)
+        {
+            red[i][j] = -1;
+        }
+    }
+    for(int i = n/2; i<n; i++)
     {
         for(int j=0; j<n; j++)
         {
             red[i][j] = 1;
         }
-    }
-    for(int i = 0; i<n; i++)
-    {
-        red[0][i] = -1;
     }
     return;
 }
