@@ -3,30 +3,45 @@
 #include <stdlib.h>
 #include <omp.h>
 
-#define n 32
-#define T 2.2
-#define kB 1.380649e-23
+#define n 100
+#define T 8
 
 
 int red[n][n];
 
+//Funciones para inicializar la red de espines manteniendo la primera y
+//ultima fila con espin positivo y negativo, respectivamente
+
 void inicializar_red()
 {
-    for(int i = 0; i<n/2; i++)
+    for(int i=0; i<n; i++)
     {
         for(int j=0; j<n; j++)
         {
-            red[i][j] = -1;
+            if(rand() % 2 == 0) red[i][j] = -1;
+            else red[i][j] = 1;
         }
     }
-    for(int i = n/2; i<n; i++)
+    for(int i=0; i<n; i++)
     {
-        for(int j=0; j<n; j++)
-        {
-            red[i][j] = 1;
-        }
+        red[0][i] = -1;
+        red[n-1][i] = 1;
     }
     return;
+}
+
+double energia_media()
+{
+    double E = 0;
+    for(int i=0; i<n; i++)
+    {
+        for(int j=0; j<n; j++)
+        {
+            E -= 0.5 * red[i][j] * (red[(i+1)%n][j] + red[(i-1+n)%n][j] +
+            red[i][(j+1)%n] + red[i][(j-1+n)%n]);
+        }
+    }
+    return E/(n*n);
 }
 
 double minimo(double x)
@@ -37,6 +52,9 @@ double minimo(double x)
 
 void magnetizacion(double *m)
 {
+
+    m[0] = 0;
+    m[1] = 0;
 
     for(int i=0; i<(n/2.0); i++)
     {
@@ -50,50 +68,75 @@ void densidad(double *d)
 {
     for(int i=0; i<n; i++)
     {
+        d[i] = 0;
         for(int j=0; j<n; j++) d[i] += red[i][j];
+        d[i] = d[i]/n;
     }
     return;
 }
 
-void kawasaki() //double *E
+void kawasaki()
 {
-    //E = 0;
     for(int i=0; i<(n*n); i++)
     {
-        int j, l, m;
-        do
-        {
-             j = rand() % (n-1);
-        }while (j == 0);
+        int j, k, l, m;
+
+        j = rand() % n;
+        k = rand() % n;
+
+        // Elección de la posición del espín vecino a intercambiar
+        // de forma aleatoria
+
+        double a;
+
+        a = (double) rand() / RAND_MAX;
+        if(a < 0.25) l = j - 1 , m = k;
+        else if(0.25 < a < 0.5) l = j + 1, m = k;
+        else if(0.5 < a < 0.75) l = j, m = k-1;
+        else l = j, m = k + 1;
+
+        l = (l+n)%n;
+        m = (m+n)%n;
         
-        int k = rand() % (n);
-        
-        do
+        //En caso de que el espín sea el mismo, se avanza al siguiente bucle
+
+        if(red[j][k] != red[l][m])
         {
-            l = rand() % (n-1);
-        } while ((j == l) || (l == 0));
 
-        do
-        {
-            m = rand() % (n);
-        } while (k == m);
+        double deltaE, p, e;      
 
-        int a, b;
+        // Calculo del cambio en la energía en caso de intercambiar los espines
 
-        double deltaE, p, e;        
+        int aux = red[j][k];
+        red[j][k] = red[l][m];
+        red[l][m] = aux;
 
-        deltaE = 2 * (red[j][k] * (red[l+1][m] + red[l-1][m] + 
-        red[l][(m+1)%n] + red[l][(m-1+n)%n]) + red[l][m] * (red[j+1][k] + 
-        red[j-1][k] + red[j][(k+1)%n] + red[j][(k-1+n)%n]));
+        deltaE = (red[l][m] * (red[(l+1) % n][m] + red[(l-1+n)%n][m] + 
+        red[l][(m+1)%n] + red[l][(m-1+n)%n]) + red[j][k] * (red[(j+1)%n][k] + 
+        red[(j-1+n)%n][k] + red[j][(k+1)%n] + red[j][(k-1+n)%n]));
 
-        //*E += deltaE;
+        aux = red[j][k];
+        red[j][k] = red[l][m];
+        red[l][m] = aux;
 
-        p = minimo(1.0/exp(deltaE/T));
-        e = 1.0 * rand() / RAND_MAX;
+        p = minimo(exp(deltaE/T));
+        e = ((double) rand() )/ RAND_MAX;
+
+        // Intercambio de espines si se cumple el criterio establecido
 
         if(e < p) 
         {
-            red[j][k] = -red[j][k];
+            aux = red[j][k];
+            red[j][k] = red[l][m];
+            red[l][m] = aux;
+        }
+
+        for(int i=0; i<n; i++)
+        {
+            red[0][i] = -1;
+            red[n-1][i] = 1;
+        }
+
         }
     }
     return;
@@ -103,23 +146,24 @@ int main()
 {
     int pasos;
     double *m = malloc(2 * sizeof(double));
-    //double *energia;
-    //energia = 0;
+    double *d = malloc(n * sizeof(double));
+    double E;
+
 
     m[0] = 0.0;
     m[1] = 0.0;
 
-    pasos = 1000;
+    pasos = 6000;
     inicializar_red();
     
-    FILE *salida= fopen("energia.txt", "w");
+    FILE *e = fopen("energia.txt", "w");
     FILE *f = fopen("spin.txt", "w");
+    FILE *mag = fopen("magnetizacion.txt", "w");
+    FILE *den = fopen("densidad.txt", "w");
 
 
     for(int h=0; h<pasos; h++)
     {
-        //fprintf(salida, "%lf", energia);
-        fprintf(salida, "\n");
         for(int i=0; i<n; i++)
         {
             for(int j=0; j<n-1; j++)
@@ -130,17 +174,26 @@ int main()
             fprintf(f, "\n");
         }
         fprintf(f, "\n");
+
+        E = energia_media();
+        fprintf(e, "%lf \n", E);
+        
         magnetizacion(m);
-        kawasaki();//energia
+
+        m[0] = m[0]/(n*n*0.5);
+        m[1] = m[1]/(n*n*0.5);
+
+        fprintf(mag, " %d, %lf, %lf, %lf \n", h, m[0], m[1], m[1]+m[0]);
+
+        kawasaki();
     }
 
-    m[0] = m[0]/(n*n*0.5);
-    m[1] = m[1]/(n*n*0.5);
+    densidad(d);
+    for(int i =0; i<n; i++) fprintf(den, "%lf \n", d[i]);
 
-    printf("Magnetización media mitad superior : %lf \n", m[0]);
-    printf("Magnetización media mitad inferior : %lf \n", m[1]);
-    fclose(salida);
+    fclose(den);
     fclose(f);
+    fclose(mag);
     
     return 0;
 }
