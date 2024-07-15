@@ -4,7 +4,7 @@
 #include <math.h>
 #include <stdlib.h>
 
-#define L 10.0  // Lado de la "caja" en la que disponemos las particulas
+#define L 10  // Lado de la "caja" en la que disponemos las particulas
 #define N 20    // Numero de particulas
 #define pi 3.1415926
 #define h 0.002    // Paso temporal
@@ -12,7 +12,7 @@
 
 void aceleracion(double x0, double y0, double *x, double *y, double *ax, double *ay)
 {
-    double deltax, deltay,r;
+    double deltax, deltay, r;
     *ax = 0;
     *ay = 0;
 
@@ -34,10 +34,15 @@ void aceleracion(double x0, double y0, double *x, double *y, double *ax, double 
 
             if(r < 3)
             {
-                double a = 4 * (- 1/(11 * pow(r,11)) + 1/(5 * pow(r,5)));
+                double a = 24 * (2/pow(r,13) - 1 /pow(r,7));
 
-                *ax += a * deltax;
-                *ay += a * deltay;
+                if(a < 3000)
+                {
+                *ax += a * deltax / r;
+                *ay += a * deltay / r;
+                }
+
+
             }
         }
     }
@@ -72,12 +77,12 @@ void velocidad(double *vx, double *vy, double *ax, double *ay, double *wx, doubl
 
 double energia_cinetica(double *vx, double *vy)
 {
-    double E = 0;
+    double K = 0;
     for(int i=0; i<N; i++)
     {
-        E += 0.5 * (vx[i]*vx[i] + vy[i]*vy[i]);
+        K += 0.5 * (vx[i]*vx[i] + vy[i]*vy[i]);
     }
-    return E;
+    return K;
 }
 
 double energia_potencial(double *x, double *y)
@@ -129,14 +134,12 @@ int main()
     // disponiendo a las partículas en distintos cuadrantes para evitar
     // fuerzas iniciales muy grandes
 
-    double a;
-    a = L/N;
-    
+    double a = L / sqrt(N);
 
     for(int i=0; i<N; i++)
     {
-        x[i] = a * (i + (double) rand()/ RAND_MAX);
-        y[i] = (L * (double) rand()/ RAND_MAX);
+        x[i] = a * (i % (int)sqrt(N)) + (double)rand() / RAND_MAX;
+        y[i] = a * (i / (int)sqrt(N)) + (double)rand() / RAND_MAX;
     }
 
     // Calculo de la aceleracion para las posiciones iniciales
@@ -162,7 +165,15 @@ int main()
         for(int i=0; i<N; i++)
         {
             posicion(&x[i], &y[i], &ax[i], &ay[i], &vx[i], &vy[i], &wx[i], &wy[i]);
+        }
+
+        for(int i=0; i<N; i++)
+        {
             aceleracion(x[i], y[i], x, y, &ax[i], &ay[i]);
+        }
+
+        for(int i=0; i<N; i++)
+        {
             velocidad(&vx[i], &vy[i], &ax[i], &ay[i], &wx[i], &wy[i]);
         }
         

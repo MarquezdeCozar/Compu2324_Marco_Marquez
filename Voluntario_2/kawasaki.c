@@ -2,9 +2,10 @@
 #include <math.h>
 #include <stdlib.h>
 #include <omp.h>
+#include <time.h>
 
-#define n 100
-#define T 8
+#define n 60
+#define T 2.2269
 
 
 int red[n][n];
@@ -149,6 +150,9 @@ int main()
     double *d = malloc(n * sizeof(double));
     double E;
 
+    clock_t inicio, final;
+    inicio = clock();
+
 
     m[0] = 0.0;
     m[1] = 0.0;
@@ -189,11 +193,14 @@ int main()
     }
 
     densidad(d);
-    for(int i =0; i<n; i++) fprintf(den, "%lf \n", d[i]);
+    for(int i =0; i<n; i++) fprintf(den, "%d, %lf \n", i, d[i]);
 
     fclose(den);
     fclose(f);
     fclose(mag);
-    
+
+    final = clock();
+    printf("Tiempo de ejecución = %lf \n ", 1.0 * (final-inicio)/CLOCKS_PER_SEC);
+
     return 0;
 }

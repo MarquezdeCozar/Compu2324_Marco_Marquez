@@ -51,22 +51,22 @@ file_in = "posiciones.txt" # Nombre del fichero de datos
 file_out = "planetas" # Nombre del fichero de salida (sin extensión)
 
 # Límites de los ejes X e Y
-x_min = -2
-x_max = 2
-y_min = -2 
-y_max = 2
+x_min = -1
+x_max = 11
+y_min = -1
+y_max = 11
 
-interval = 0.1 # Tiempo entre fotogramas en milisegundos
-show_trail = True # Muestra la "estela" del planeta
+interval = 1 # Tiempo entre fotogramas en milisegundos
+show_trail = False # Muestra la "estela" del planeta
 trail_width = 1 # Ancho de la estela
-save_to_file = True # False: muestra la animación por pantalla,
+save_to_file = False # False: muestra la animación por pantalla,
                      # True: la guarda en un fichero
 dpi = 100 # Calidad del vídeo de salida (dots per inch)
 
 # Radio del planeta, en las mismas unidades que la posición
 # Puede ser un número (el radio de todos los planetas) o una lista con
 # el radio de cada uno
-planet_radius = 0.05
+planet_radius = 0.2
 #planet_radius = [0.5, 0.7, 1.1]
 
 
